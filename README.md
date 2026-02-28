@@ -19,36 +19,26 @@ pip install -e .
 
 ## Configuration
 
-### Regional Settings (JSON)
-
-Create a `regions.json` file in the project root or at `~/.news-summariser/regions.json`:
+All settings are configured in `regions.json`. Create it in the project root or at `~/.news-summariser/regions.json`:
 
 ```json
 {
   "local_location": "Your City, Your Country",
   "country_code": "us",
+  "max_articles_per_source": 10,
   "rss_feeds_local": ["https://example.com/local/rss"],
   "rss_feeds_national": ["https://example.com/national/rss"],
-  "rss_feeds_global": ["https://feeds.bbci.co.uk/news/world/rss.xml"]
+  "rss_feeds_global": ["https://feeds.bbci.co.uk/news/world/rss.xml"],
+  "newsapi_key": "your_key_here",
+  "ollama_cloud_key": "your_key_here",
+  "ollama_cloud_url": "http://localhost:11434/api/generate",
+  "ollama_model": "llama3.2"
 }
 ```
 
-### API Keys
-
-Set environment variables:
-
-```bash
-export NEWS_NEWSAPI_KEY=your_newsapi_key        # Optional
-export NEWS_OLLAMA_CLOUD_KEY=your_key_here       # AI summaries
-```
-
-Or create `~/.news-summariser/config.yaml`:
-
-```yaml
-newsapi_key: your_key_here
-ollama_cloud_key: your_key_here
-ollama_model: "llama3.2"
-```
+Environment variables also work as fallback:
+- `NEWS_NEWSAPI_KEY`
+- `NEWS_OLLAMA_CLOUD_KEY`
 
 ## Usage
 
