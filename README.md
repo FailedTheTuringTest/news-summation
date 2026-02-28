@@ -6,7 +6,7 @@ AI-powered terminal app that summarises local, national, and global news using f
 
 - **Multiple news sources**: RSS feeds + NewsAPI.org
 - **AI summarisation**: Ollama Cloud (free tier) with Llama 3.2
-- **Three scopes**: Local (Westmeath, Ireland), National (Ireland), Global
+- **Three scopes**: Local, National, Global
 - **Beautiful output**: Rich terminal formatting with panels and progress indicators
 
 ## Installation
@@ -27,18 +27,17 @@ export NEWS_OLLAMA_CLOUD_KEY=your_key_here       # AI summaries
 Or create a config file at `~/.news-summariser/config.yaml`:
 
 ```yaml
-local_location: "Westmeath, Ireland"
-country_code: "ie"
+local_location: "Your City, Your Country"
+country_code: "us"
 newsapi_key: your_key_here
 ollama_cloud_key: your_key_here
 ollama_model: "llama3.2"
 
 rss_feeds_local:
-  - "https://www.westmeathindependent.ie/rss"
+  - "https://example.com/local-news/rss"
 
 rss_feeds_national:
-  - "https://www.rte.ie/news/rss"
-  - "https://www.irishtimes.com/news/rss"
+  - "https://example.com/national-news/rss"
 
 rss_feeds_global:
   - "https://feeds.bbci.co.uk/news/world/rss.xml"
@@ -47,10 +46,10 @@ rss_feeds_global:
 ## Usage
 
 ```bash
-# Get local news (Westmeath, Ireland)
+# Get local news (as configured)
 news local
 
-# Get national news (Ireland)
+# Get national news (as configured)
 news national
 
 # Get global news
