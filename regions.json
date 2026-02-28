@@ -1,0 +1,18 @@
+{
+  "local_location": "Westmeath, Ireland",
+  "country_code": "ie",
+  "rss_feeds_local": [
+    "https://www.westmeathindependent.ie/rss",
+    "https://www.westmeathexaminer.ie/rss"
+  ],
+  "rss_feeds_national": [
+    "https://www.rte.ie/news/rss",
+    "https://www.irishtimes.com/news/rss",
+    "https://www.independent.ie/news/rss"
+  ],
+  "rss_feeds_global": [
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "https://www.theguardian.com/world/rss"
+  ]
+}
