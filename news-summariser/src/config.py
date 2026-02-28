@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     
     newsapi_key: Optional[str] = None
     ollama_cloud_key: Optional[str] = None
-    ollama_cloud_url: str = "https://ollama.com/api/generate"
+    ollama_cloud_url: str = "http://localhost:11434/api/generate"
     ollama_model: str = "llama3.2"
     
     local_location: str = "Westmeath, Ireland"

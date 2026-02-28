@@ -24,7 +24,12 @@ class RSSFetcher(BaseFetcher):
         for feed_url in self._feeds:
             try:
                 async with httpx.AsyncClient() as client:
-                    response = await client.get(feed_url, timeout=10.0, follow_redirects=True)
+                    response = await client.get(
+                        feed_url,
+                        timeout=10.0,
+                        follow_redirects=True,
+                        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
+                    )
                     response.raise_for_status()
                 
                 feed = feedparser.parse(response.content)

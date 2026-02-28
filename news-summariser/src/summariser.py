@@ -35,10 +35,11 @@ Articles:
 
 Provide a summary in 3-5 bullet points, each 1-2 sentences. End with a brief "In brief" one-line takeaway."""
 
-        if self._api_key:
-            return await self._call_ollama_cloud(prompt)
-        else:
-            return self._local_fallback_summary(articles, scope)
+        summary = await self._call_ollama_cloud(prompt)
+        if summary.startswith("API Error") or summary.startswith("HTTP Error") or summary.startswith("Error"):
+            # Fallback if Ollama is unreachable
+            return self._local_fallback_summary(articles, scope) + f"\n\n[Ollama Status: {summary}]"
+        return summary
     
     def _format_articles_for_summary(self, articles: list[Article], max_articles: int = 15) -> str:
         formatted = []
@@ -50,14 +51,15 @@ Provide a summary in 3-5 bullet points, each 1-2 sentences. End with a brief "In
         return "\n\n".join(formatted)
     
     async def _call_ollama_cloud(self, prompt: str) -> str:
+        headers = {"Content-Type": "application/json"}
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
+
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(
                     self._api_url,
-                    headers={
-                        "Authorization": f"Bearer {self._api_key}",
-                        "Content-Type": "application/json",
-                    },
+                    headers=headers,
                     json={
                         "model": self._model,
                         "prompt": prompt,
