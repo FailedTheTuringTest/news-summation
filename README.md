@@ -12,35 +12,42 @@ AI-powered terminal app that summarises local, national, and global news using f
 ## Installation
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -e .
 ```
 
 ## Configuration
 
-Set environment variables for API keys:
+### Regional Settings (JSON)
+
+Create a `regions.json` file in the project root or at `~/.news-summariser/regions.json`:
+
+```json
+{
+  "local_location": "Your City, Your Country",
+  "country_code": "us",
+  "rss_feeds_local": ["https://example.com/local/rss"],
+  "rss_feeds_national": ["https://example.com/national/rss"],
+  "rss_feeds_global": ["https://feeds.bbci.co.uk/news/world/rss.xml"]
+}
+```
+
+### API Keys
+
+Set environment variables:
 
 ```bash
-export NEWS_NEWSAPI_KEY=your_newsapi_key        # Optional, adds more sources
+export NEWS_NEWSAPI_KEY=your_newsapi_key        # Optional
 export NEWS_OLLAMA_CLOUD_KEY=your_key_here       # AI summaries
 ```
 
-Or create a config file at `~/.news-summariser/config.yaml`:
+Or create `~/.news-summariser/config.yaml`:
 
 ```yaml
-local_location: "Your City, Your Country"
-country_code: "us"
 newsapi_key: your_key_here
 ollama_cloud_key: your_key_here
 ollama_model: "llama3.2"
-
-rss_feeds_local:
-  - "https://example.com/local-news/rss"
-
-rss_feeds_national:
-  - "https://example.com/national-news/rss"
-
-rss_feeds_global:
-  - "https://feeds.bbci.co.uk/news/world/rss.xml"
 ```
 
 ## Usage
