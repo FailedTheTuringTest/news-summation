@@ -1,5 +1,5 @@
 [project]
-name = "news-summariser"
+name = "news-summation"
 version = "0.1.0"
 description = "AI-powered news summariser for local, national, and global news"
 readme = "README.md"
