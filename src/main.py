@@ -255,7 +255,8 @@ if [ ! -f "$RUN_FILE" ] || [ "$(cat "$RUN_FILE")" != "$TODAY" ]; then
     echo "$TODAY" > "$RUN_FILE"
     # Sleep to ensure network is up
     sleep 60
-    {news_bin} all > "{news_dir}/latest_news.txt" 2>&1
+    {news_bin} all
+    read -p "Press Enter to close..."
 fi
 """
     with open(script_path, "w") as f:
@@ -265,39 +266,26 @@ fi
     st = os.stat(script_path)
     os.chmod(script_path, st.st_mode | stat.S_IEXEC)
 
-    # Add to crontab
-    cron_cmd = f"@reboot {script_path}\n"
-    try:
-        try:
-            current_crontab = subprocess.run(["crontab", "-l"], capture_output=True, text=True).stdout
-        except FileNotFoundError:
-            console.print("[yellow]! 'crontab' command not found. Cannot configure autostart automatically.[/yellow]")
-            console.print(f"[dim]Please manually add the following line to your cron or startup applications:[/dim]")
-            console.print(f"[bold]{cron_cmd.strip()}[/bold]")
-            return
-    except Exception:
-        current_crontab = ""
+    # Set up KDE autostart .desktop file
+    autostart_dir = Path.home() / ".config/autostart"
+    autostart_dir.mkdir(parents=True, exist_ok=True)
 
-    if script_path.name not in current_crontab:
-        new_crontab = current_crontab + cron_cmd
+    desktop_file_path = autostart_dir / "news-summariser.desktop"
+    desktop_file_content = f"""[Desktop Entry]
+Type=Application
+Exec={script_path}
+Hidden=false
+NoDisplay=false
+Name=News Summariser
+Comment=Daily news summariser on boot
+Terminal=true
+"""
+    with open(desktop_file_path, "w") as f:
+        f.write(desktop_file_content)
 
-        # Write to crontab
-        import tempfile
-        with tempfile.NamedTemporaryFile("w", delete=False) as f:
-            f.write(new_crontab)
-            temp_path = f.name
-
-        try:
-            subprocess.run(["crontab", temp_path])
-            console.print(f"[green]✓ Successfully set up daily autostart via crontab.[/green]")
-            console.print(f"[dim]The script is located at {script_path}[/dim]")
-            console.print(f"[dim]The output will be saved to {news_dir}/latest_news.txt[/dim]")
-        except FileNotFoundError:
-            console.print("[yellow]! 'crontab' command not found. Cannot configure autostart automatically.[/yellow]")
-        finally:
-            os.unlink(temp_path)
-    else:
-        console.print(f"[yellow]! Autostart is already configured in crontab.[/yellow]")
+    console.print(f"[green]✓ Successfully set up daily autostart.[/green]")
+    console.print(f"[dim]The script is located at {script_path}[/dim]")
+    console.print(f"[dim]The .desktop file is located at {desktop_file_path}[/dim]")
 
 
 if __name__ == "__main__":
