@@ -13,6 +13,6 @@
   ],
   "newsapi_key": null,
   "ollama_cloud_key": null,
-  "ollama_cloud_url": "http://localhost:11434/api/generate",
-  "ollama_model": "llama3.2"
+  "ollama_cloud_url": "https://ollama.com/api/generate",
+  "ollama_model": "deepseek-v3.1:671b-cloud"
 }

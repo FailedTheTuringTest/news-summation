@@ -11,9 +11,23 @@ AI-powered terminal app that summarises local, national, and global news using f
 
 ## Installation
 
+### Arch / CachyOS
+
+Install dependencies via pacman:
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+sudo pacman -S python-httpx python-click python-rich python-feedparser python-pydantic python-pyyaml
+```
+
+If `python-pydantic-settings` is not available in the official repos, install from the AUR:
+
+```bash
+yay -S python-pydantic-settings
+```
+
+### Other distros
+
+```bash
 pip install -e .
 ```
 
@@ -31,8 +45,8 @@ All settings are configured in `regions.json`. Create it in the project root or 
   "rss_feeds_global": ["https://feeds.bbci.co.uk/news/world/rss.xml"],
   "newsapi_key": "your_key_here",
   "ollama_cloud_key": "your_key_here",
-  "ollama_cloud_url": "http://localhost:11434/api/generate",
-  "ollama_model": "llama3.2"
+  "ollama_cloud_url": "https://ollama.com/api/generate",
+  "ollama_model": "deepseek-v3.1:671b-cloud"
 }
 ```
 
@@ -44,26 +58,38 @@ Environment variables also work as fallback:
 
 ```bash
 # Get local news (as configured)
-news local
+python3 -m src.main local
 
 # Get national news (as configured)
-news national
+python3 -m src.main national
 
 # Get global news
-news global
+python3 -m src.main global
 
 # Get all summaries
-news all
+python3 -m src.main all
 
 # View configuration
-news config
+python3 -m src.main config
 
 # List news sources
-news sources
+python3 -m src.main sources
 
 # JSON output
-news local --json
+python3 -m src.main local --json
 ```
+
+## Daily Autostart (KDE Plasma)
+
+Set up the news summariser to open a terminal with your daily news on first login:
+
+```bash
+python3 -m src.main setup-autostart
+```
+
+This creates:
+- `~/.news-summariser/daily_run.sh` — script that runs once per day
+- `~/.config/autostart/news-summariser.desktop` — KDE autostart entry that launches Konsole
 
 ## Without API Keys
 
@@ -79,6 +105,7 @@ The app works without any API keys:
 3. Paste key in config
 
 ### Ollama Cloud (For AI summaries)
-1. Visit https://ollama.ai
-2. Get your API key
-3. Free tier available for hosted models
+1. Visit https://ollama.com and sign in
+2. Go to Settings → API Keys and generate a key
+3. Set it in `regions.json` as `ollama_cloud_key` or via `NEWS_OLLAMA_CLOUD_KEY` env var
+4. Free tier is available during cloud preview
