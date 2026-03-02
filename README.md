@@ -1,13 +1,15 @@
 # News Summariser
 
-AI-powered terminal app that summarises local, national, and global news using free AI models.
+AI-powered terminal app that summarises local, national, and global news using cloud LLMs.
 
 ## Features
 
 - **Multiple news sources**: RSS feeds + NewsAPI.org
-- **AI summarisation**: Ollama Cloud (free tier) with Llama 3.2
+- **AI summarisation**: Ollama Cloud with DeepSeek V3.1 (671B) by default
 - **Three scopes**: Local, National, Global
 - **Beautiful output**: Rich terminal formatting with panels and progress indicators
+- **Fallback mode**: Shows formatted headlines when no API key is configured
+- **Daily autostart**: Optional KDE Plasma autostart on first login of the day
 
 ## Installation
 
@@ -31,9 +33,14 @@ yay -S python-pydantic-settings
 pip install -e .
 ```
 
+This also installs a `news` CLI entry point you can run from anywhere.
+
 ## Configuration
 
-All settings are configured in `regions.json`. Create it in the project root or at `~/.news-summariser/regions.json`:
+All settings are configured in `regions.json`. The app looks for it in the following locations (in order):
+
+1. `./regions.json` (project root)
+2. `~/.news-summariser/regions.json`
 
 ```json
 {
@@ -43,69 +50,108 @@ All settings are configured in `regions.json`. Create it in the project root or 
   "rss_feeds_local": ["https://example.com/local/rss"],
   "rss_feeds_national": ["https://example.com/national/rss"],
   "rss_feeds_global": ["https://feeds.bbci.co.uk/news/world/rss.xml"],
-  "newsapi_key": "your_key_here",
-  "ollama_cloud_key": "your_key_here",
+  "newsapi_key": null,
+  "ollama_cloud_key": null,
   "ollama_cloud_url": "https://ollama.com/api/generate",
   "ollama_model": "deepseek-v3.1:671b-cloud"
 }
 ```
 
-Environment variables also work as fallback:
+Environment variables (prefixed with `NEWS_`) also work as fallback via pydantic-settings:
+
 - `NEWS_NEWSAPI_KEY`
 - `NEWS_OLLAMA_CLOUD_KEY`
+- `NEWS_OLLAMA_CLOUD_URL`
+- `NEWS_OLLAMA_MODEL`
+
+You can also place a `.env` file in the project root.
 
 ## Usage
 
 ```bash
-# Get local news (as configured)
+# Get local news
 python3 -m src.main local
 
-# Get national news (as configured)
+# Get national news
 python3 -m src.main national
 
 # Get global news
 python3 -m src.main global
 
-# Get all summaries
+# Get all summaries (local + national + global)
 python3 -m src.main all
 
-# View configuration
-python3 -m src.main config
+# View current configuration
+python3 -m src.main config-cmd
 
-# List news sources
+# List configured news sources
 python3 -m src.main sources
 
-# JSON output
+# JSON output (works with any scope command)
 python3 -m src.main local --json
+```
+
+If installed with `pip install -e .`, use `news` instead of `python3 -m src.main`:
+
+```bash
+news all
+news local --json
 ```
 
 ## Daily Autostart (KDE Plasma)
 
-Set up the news summariser to open a terminal with your daily news on first login:
+Set up the news summariser to open a Konsole window with your daily news on first login:
 
 ```bash
 python3 -m src.main setup-autostart
 ```
 
 This creates:
-- `~/.news-summariser/daily_run.sh` — script that runs once per day
+
+- `~/.news-summariser/daily_run.sh` — script that runs once per day (skips if already run today)
 - `~/.config/autostart/news-summariser.desktop` — KDE autostart entry that launches Konsole
+
+> **Note:** The project directory must remain at its current location for the autostart script to work.
 
 ## Without API Keys
 
 The app works without any API keys:
-- RSS feeds are fetched directly (no key required)
-- Without Ollama key, shows formatted headlines instead of AI summaries
+
+- RSS feeds are always fetched directly (no key required)
+- Without an Ollama Cloud key, the app shows formatted headlines instead of AI summaries
+- Without a NewsAPI key, only RSS feeds are used as sources
 
 ## Getting API Keys
 
 ### NewsAPI.org (Optional)
+
 1. Visit https://newsapi.org/register
 2. Free tier: 100 requests/day
-3. Paste key in config
+3. Add to `regions.json` as `newsapi_key` or set `NEWS_NEWSAPI_KEY`
 
 ### Ollama Cloud (For AI summaries)
+
 1. Visit https://ollama.com and sign in
 2. Go to Settings → API Keys and generate a key
-3. Set it in `regions.json` as `ollama_cloud_key` or via `NEWS_OLLAMA_CLOUD_KEY` env var
-4. Free tier is available during cloud preview
+3. Add to `regions.json` as `ollama_cloud_key` or set `NEWS_OLLAMA_CLOUD_KEY`
+
+## Project Structure
+
+```
+news-summation/
+├── pyproject.toml          # Project metadata & dependencies
+├── regions.json            # User configuration
+└── src/
+    ├── main.py             # CLI entry point (Click commands)
+    ├── config.py            # Settings via pydantic-settings
+    ├── summariser.py        # Ollama Cloud API integration
+    └── fetchers/
+        ├── base.py          # Article model & base fetcher
+        ├── rss.py           # RSS feed fetcher (feedparser)
+        └── newsapi.py       # NewsAPI.org fetcher
+```
+
+## Requirements
+
+- Python ≥ 3.10
+- httpx, click, rich, feedparser, pydantic, pydantic-settings, pyyaml
