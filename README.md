@@ -1,4 +1,4 @@
-# News Summariser
+# news-summation
 
 AI-powered terminal app that summarises local, national, and global news using cloud LLMs.
 
