@@ -1,3 +1,4 @@
+import re
 import httpx
 from typing import Optional
 from .fetchers.base import Article
@@ -15,6 +16,22 @@ class Summariser:
         self._model = model or config.settings.ollama_model
         self._api_url = api_url or config.settings.ollama_cloud_url
     
+    @staticmethod
+    def _clean_summary(text: str) -> str:
+        """Clean up LLM output so every list item uses proper markdown bullets."""
+        lines = text.split("\n")
+        cleaned = []
+        for line in lines:
+            # Normalise any line starting with –, —, or - (with optional whitespace)
+            # into a standard markdown bullet "- "
+            line = re.sub(r"^\s*[–—]\s*", "- ", line)
+
+            # Remove stray –/— that appear right after a bold heading inside a bullet,
+            # e.g.  "- **Title:** –Rest" → "- **Title:** Rest"
+            line = re.sub(r"(\*\*.*?:\*\*)\s*[–—-]\s*", r"\1 ", line)
+            cleaned.append(line)
+        return "\n".join(cleaned)
+    
     async def summarise_articles(self, articles: list[Article], scope: str) -> str:
         if not articles:
             return f"No articles found for {scope} news."
@@ -28,7 +45,7 @@ Focus on:
 2. Important facts and developments
 3. Notable trends or patterns
 
-Present the summary in a clear, scannable format with bullet points for main stories.
+Present the summary in a clear, scannable format with bullet points for main stories. Use markdown bullet points (starting with "- ") and do not use dashes within the text of bullet points.
 
 Articles:
 {articles_text}
@@ -39,7 +56,7 @@ Provide a summary in 3-5 bullet points, each 1-2 sentences. End with a brief "In
         if summary.startswith("API Error") or summary.startswith("HTTP Error") or summary.startswith("Error"):
             # Fallback if Ollama is unreachable
             return self._local_fallback_summary(articles, scope) + f"\n\n[Ollama Status: {summary}]"
-        return summary
+        return self._clean_summary(summary)
     
     def _format_articles_for_summary(self, articles: list[Article], max_articles: int = 15) -> str:
         formatted = []
